@@ -61,13 +61,20 @@ function createQUnitStartFn (tc, runnerPassedIn) { // eslint-disable-line no-unu
       if (!supportsTestTracking) {
         tc.info({ total: totalNumberOfTest })
       }
-
+      Object.keys(window.__coverage__).forEach(function(coverageKey) {
+      	window.cov[coverageKey] = window.__coverage__[coverageKey];
+	  })
       tc.complete({
-        coverage: window.__coverage__
+        coverage: window.cov
       })
     })
 
     runner.testStart(function (test) {
+		var iframes = window.document.querySelectorAll("iframe");
+		if(iframes[0] && window.cov === undefined) {
+			window.cov = iframes[0].contentWindow.__coverage__
+		}
+
       totalNumberOfTest += 1
       timer = new Date().getTime()
       testResult = { success: true, errors: [] }
